@@ -9,6 +9,10 @@ env/
 # Streamlit
 .streamlit/secrets.toml
 
+# Runtime logs written by the app
+feedback_log.csv
+unanswered_log.csv
+
 # The source archive (project is now unpacked in this repo)
 iot-assistant-streamlit.zip
 

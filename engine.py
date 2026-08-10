@@ -66,6 +66,29 @@ RULES = [
 
 OTHER_ASSIGNMENT = re.compile(r"\b(a2|assignment 2|task 2|a1|assignment 1|task 1|a4|assignment 4)\b")
 
+# When a student explicitly names one assignment, scope retrieval to that
+# assignment's entries. This stops questions like "how much is assignment 1
+# worth?" leaking to the heavily-keyworded Assignment 3 answers.
+ASSIGNMENT_PATTERNS = {
+    "a1": re.compile(r"\b(a1|assignment 1|task 1|assessment task 1)\b"),
+    "a2": re.compile(r"\b(a2|assignment 2|task 2|assessment task 2)\b"),
+    "a3": re.compile(r"\b(a3|assignment 3|task 3|assessment task 3)\b"),
+}
+
+
+def target_assignment(raw_text: str):
+    """Return 'a1'/'a2'/'a3' if exactly one assignment is named, else None."""
+    norm = normalise(raw_text)
+    hits = [key for key, pat in ASSIGNMENT_PATTERNS.items() if pat.search(norm)]
+    return hits[0] if len(hits) == 1 else None
+
+# Small talk: greetings / thanks. If a message is ONLY these words, answer warmly
+# instead of running retrieval (which would otherwise return "I'm not sure").
+GREETINGS = {"hi", "hello", "hey", "hiya", "yo", "howdy", "greetings", "morning",
+             "afternoon", "evening", "salam", "assalamualaikum", "hai", "helo"}
+THANKS = {"thanks", "thank", "thankyou", "thx", "ty", "cheers", "appreciate",
+          "appreciated", "great", "awesome", "nice", "ok", "okay", "cool"}
+
 HIGH = 0.28   # confident retrieval threshold
 LOW = 0.12    # below this = don't guess
 
@@ -152,6 +175,20 @@ class ChatEngine:
                 "source": None, "confidence": 0.0, "id": None,
             }
 
+        # 0) Small talk: greeting / thanks (only if the whole message is small talk)
+        token_set = set(tokens)
+        if token_set and token_set <= (GREETINGS | THANKS):
+            if token_set & THANKS and not (token_set & GREETINGS):
+                text = ("You're welcome! Ask me anything else about the ITS67404 IoT "
+                        "coursework - deadlines, weightage, formats, tools, or what each "
+                        "assignment needs.")
+            else:
+                text = ("Hi! I'm your IoT coursework assistant. Ask me about deadlines, "
+                        "weightage, formats, tools, or what each of Assignments 1, 2 and 3 "
+                        "needs - I answer from the official ITS67404 briefs and show the source.")
+            return {"type": "smalltalk", "text": text,
+                    "source": None, "confidence": 1.0, "id": None}
+
         # 1) Rule layer
         rule_id = self._check_rules(tokens, question)
         if rule_id:
@@ -165,8 +202,16 @@ class ChatEngine:
             qtf[t] = qtf.get(t, 0) + 1
         qvec = self._vectorise(qtf)
 
+        # Scope to a single named assignment when the student names one.
+        target = target_assignment(question)
+        candidates = self.docs
+        if target:
+            scoped = [(e, tf) for e, tf in self.docs if e["id"].startswith(target + "-")]
+            if scoped:
+                candidates = scoped
+
         best, best_score = None, 0.0
-        for entry, tf in self.docs:
+        for entry, tf in candidates:
             score = self._cosine(qvec, self._vectorise(tf))
             if score > best_score:
                 best_score, best = score, entry
