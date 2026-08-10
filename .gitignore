@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# The source archive (project is now unpacked in this repo)
+iot-assistant-streamlit.zip
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
