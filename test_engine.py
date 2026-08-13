@@ -76,22 +76,23 @@ check("greeting+question still answers", ans("hi when is assignment 3 due")["id"
 # ---- Student FAQ (from FAQ21.docx) ----------------------------------------
 check("ChatGPT -> AI policy", ans("Can I use ChatGPT for this assignment?")["id"] == "faq-ai-usage")
 check("AI grammar -> AI policy", ans("Can I use AI to improve my grammar?")["id"] == "faq-ai-usage")
-check("AI answer defers to lecturer", "double-check" in ans("what is the % of AI allowed?")["text"])
+check("AI allowed but declared", "declare" in ans("what is the % of AI allowed?")["text"].lower())
+check("AI cap is 20 percent", "20%" in ans("how much AI is allowed?")["text"])
 check("A2/A3 continuous -> faq", ans("Is assignment 2 and 3 continuous?")["id"] == "faq-continuous")
 check("continuous answer says yes", ans("are assignment 2 and 3 continuous?")["text"].lower().startswith("yes"))
 check("referencing style routes", ans("Which referencing style should I use?")["id"] == "faq-referencing")
 check("lecturer email surfaced", "Sumathi.balakrishnan@taylors.edu.my" in ans("What is your email?")["text"])
 check("non-contributing -> peer review", "peer" in ans("What if my group member is not contributing?")["text"].lower())
 check("change groups -> cannot", "cannot" in ans("Can I change groups next assignment?")["text"].lower())
-check("exam is unconfirmed", ans("Do we have an exam for this module?")["type"] != "unknown"
-      and "double-check" in ans("Do we have an exam?")["text"])
+check("no exam confirmed", ans("Do we have an exam for this module?")["text"].lower().startswith("no"))
+check("only group leader submits", "leader" in ans("Who should submit the final assignment?")["text"].lower())
 
 # ---- Unverified note: only verified=False entries warn ----------------------
 warned = any("double-check" in engine.answer(e["question"]).get("text", "")
              for e in KNOWLEDGE_BASE if e.get("verified"))
 check("verified entries carry no warning", not warned)
 check("unverified entries do warn",
-      "double-check" in engine.answer("Can I use ChatGPT?")["text"])
+      "double-check" in engine.answer("Can I replace my submitted file?")["text"])
 
 
 print("\n" + "=" * 60)

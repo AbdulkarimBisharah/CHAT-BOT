@@ -497,20 +497,19 @@ KNOWLEDGE_BASE = [
     },
     {
         "id": "faq-ai-usage",
-        "source": "Taylor's University / module academic-integrity policy (confirm with lecturer)",
+        "source": "Module academic-integrity policy (confirmed by lecturer)",
         "keywords": ["ai", "chatgpt", "chat gpt", "generative ai", "gen ai", "use ai",
                      "ai allowed", "ai assistance", "declare ai", "ai grammar", "ai code",
                      "ai generated", "ai images", "percentage of ai", "ai percentage", "% of ai",
                      "how much ai", "copilot", "gemini", "llm"],
         "question": "Can I use ChatGPT / generative AI, and how much is allowed?",
-        "answer": ("Use of AI (ChatGPT, generative AI, etc.) is governed by Taylor's University "
-                   "and this module's academic-integrity policy - not by this assistant. Do NOT "
-                   "assume a specific 'percentage of AI' is allowed; that has to be confirmed. As a "
-                   "safe rule: the submitted work must be your own, any AI assistance must be "
-                   "declared where the policy requires it, and AI-generated text, code or images "
-                   "can't be passed off as your original work. Check the exact rules with your "
-                   "lecturer (Sumathi.balakrishnan@taylors.edu.my) before relying on AI."),
-        "verified": False,
+        "answer": ("Yes, you may use AI (ChatGPT, generative AI, etc.) - but with two firm "
+                   "conditions: (1) you MUST declare your use of AI, and (2) AI-generated content "
+                   "must be kept to a maximum of 20%. The work you submit must still be your own; "
+                   "AI-generated text, code or images can't be passed off as original, and any AI "
+                   "assistance must be acknowledged. If in doubt about how to declare it, ask your "
+                   "lecturer (Sumathi.balakrishnan@taylors.edu.my)."),
+        "verified": True,
     },
     {
         "id": "faq-high-mark",
@@ -576,13 +575,14 @@ KNOWLEDGE_BASE = [
         "source": "Assignment briefs + lecturer (confirm)",
         "keywords": ["who should submit", "who submits", "who hands in", "all members submit",
                      "everyone submit", "only group leader", "group leader submit",
-                     "do all group members submit", "one submission"],
+                     "do all group members submit", "one submission", "who uploads",
+                     "who submit final", "submit the final assignment", "final assignment submit"],
         "question": "Who should submit - everyone or just the group leader?",
-        "answer": ("For the individual Assignment 1, each student submits their own work. For the "
-                   "group Assignments 2 and 3, you submit one set of deliverables per group "
-                   "(typically the group leader submits on the group's behalf). To be safe, confirm "
-                   "with your lecturer whether every member also needs to upload a copy."),
-        "verified": False,
+        "answer": ("For the group Assignments 2 and 3, only the GROUP LEADER submits - one set of "
+                   "deliverables per group, uploaded by the leader on the group's behalf (the other "
+                   "members do not need to upload a copy). For the individual Assignment 1, each "
+                   "student submits their own work."),
+        "verified": True,
     },
     {
         "id": "faq-lecturer-contact",
@@ -598,14 +598,13 @@ KNOWLEDGE_BASE = [
     },
     {
         "id": "faq-exam",
-        "source": "Not stated in the coursework briefs - confirm with lecturer",
+        "source": "Confirmed by lecturer",
         "keywords": ["exam", "final exam", "is there an exam", "do we have an exam", "test",
                      "quiz", "written exam", "sit an exam"],
         "question": "Do we have an exam for this module?",
-        "answer": ("The coursework briefs I have don't mention an exam - this module is assessed "
-                   "through Assignments 1, 2 and 3. Whether there is any exam should be confirmed "
-                   "with your lecturer (Sumathi.balakrishnan@taylors.edu.my) or on MyTIMeS."),
-        "verified": False,
+        "answer": ("No - there is no exam for this module. It is assessed entirely through "
+                   "coursework: Assignments 1, 2 and 3."),
+        "verified": True,
     },
     {
         "id": "faq-presentation-general",
