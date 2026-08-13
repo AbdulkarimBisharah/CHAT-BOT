@@ -64,6 +64,16 @@ RULES = [
     ("a3-4",            [["a3.4"], ["a34"], ["manuscript"]]),
 ]
 
+# Priority rules: topic-based FAQs that must win BEFORE the "student named another
+# assignment" skip below, and before TF-IDF (whose score gets diluted by the long
+# keyword lists on these entries). Matched on EXACT tokens only (no substring), so a
+# short trigger like "ai" can't accidentally fire on words such as "email"/"detail".
+PRIORITY_RULES = [
+    ("faq-ai-usage",   [["ai"], ["chatgpt"], ["gpt"], ["generative"], ["copilot"],
+                        ["gemini"], ["llm"]]),
+    ("faq-continuous", [["continuous"], ["continuation"], ["continue"]]),
+]
+
 OTHER_ASSIGNMENT = re.compile(r"\b(a2|assignment 2|task 2|a1|assignment 1|task 1|a4|assignment 4)\b")
 
 # When a student explicitly names one assignment, scope retrieval to that
@@ -140,6 +150,11 @@ class ChatEngine:
     def _check_rules(self, tokens, raw_text):
         joined = " ".join(tokens)
         token_set = set(tokens)
+        # Priority rules first (exact-token match), even when another assignment is named.
+        for entry_id, groups in PRIORITY_RULES:
+            for words in groups:
+                if all(w in token_set for w in words):
+                    return entry_id
         # If the student explicitly names another assignment, skip generic A3 rules.
         if OTHER_ASSIGNMENT.search(normalise(raw_text)):
             return None

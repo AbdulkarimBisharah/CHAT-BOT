@@ -403,20 +403,240 @@ KNOWLEDGE_BASE = [
     },
 
     # ========================================================================
-    # GENERAL MODULE INFO
+    # STUDENT FAQ (from FAQ21.docx) - cross-assignment common questions.
+    # Answers that ARE confirmed by the briefs / the lecturer are verified=True.
+    # Anything the briefs don't state (AI %, exam, exact word count, MyTIMeS
+    # mechanics) is verified=False and points the student to the lecturer,
+    # so the bot shows a "please double-check" note instead of guessing.
     # ========================================================================
+    {
+        "id": "faq-individual-or-group",
+        "source": "Assignment 1, 2 & 3 briefs",
+        "keywords": ["individual or group", "is this group", "is it individual",
+                     "group or individual", "solo", "by myself", "alone", "on my own",
+                     "can i do it individually", "do it alone"],
+        "question": "Is this an individual or group assignment?",
+        "answer": ("It depends on the assignment: Assignment 1 is INDIVIDUAL (done on your "
+                   "own), while Assignments 2 and 3 are GROUP assignments done in groups of 3 "
+                   "to 5 students."),
+        "verified": True,
+    },
+    {
+        "id": "faq-referencing",
+        "source": "Assignment 1 brief (Harvard) and Assignment 2 & 3 briefs (IEEE)",
+        "keywords": ["referencing", "reference style", "referencing style", "citation style",
+                     "how to cite", "harvard", "ieee referencing", "cite", "cite images",
+                     "cite websites", "websites as references", "how many references",
+                     "number of references", "sources"],
+        "question": "Which referencing style should I use?",
+        "answer": ("Assignment 1 uses HARVARD-style citations and references. Assignments 2 "
+                   "and 3 use IEEE-format in-text citations and references. Cite ALL non-original "
+                   "material, including images and figures you didn't make. You may use reputable "
+                   "websites as sources, but prefer credible/academic references. There's no fixed "
+                   "minimum number - use as many credible sources as your work genuinely needs."),
+        "verified": True,
+    },
+    {
+        "id": "faq-formatting",
+        "source": "Assignment 2 & 3 briefs (report/manuscript formatting)",
+        "keywords": ["font", "font size", "formatting", "format", "times new roman",
+                     "line spacing", "spacing", "figures", "tables", "label figures",
+                     "label tables", "report format", "how to format", "will formatting affect",
+                     "does formatting matter"],
+        "question": "What font and formatting should I use?",
+        "answer": ("Formatting depends on the task. Assignment 2 report: Times New Roman 12pt, "
+                   "1.5 line spacing, justified; each task starts on a new page; all figures and "
+                   "tables must be clearly labelled. Assignment 3 manuscript (A3.4): strict IEEE "
+                   "format, maximum 6 pages. Assignment 1: a PDF with a cover page and Harvard "
+                   "references. Yes - formatting affects your marks: groups lose marks for not "
+                   "following the required format."),
+        "verified": True,
+    },
+    {
+        "id": "faq-word-page-limit",
+        "source": "Assignment briefs (page limits)",
+        "keywords": ["word count", "word limit", "how many words", "how many pages",
+                     "page limit", "exceed word limit", "exceed the limit", "does word count include",
+                     "word count references", "word count tables", "how long should the report",
+                     "length"],
+        "question": "How many pages or words should the report be?",
+        "answer": ("The briefs use PAGE limits, not word counts. The Assignment 3 manuscript "
+                   "(A3.4) has a maximum of 6 pages in IEEE format. Assignments 1 and 2 don't set "
+                   "a fixed word count - focus on fully and concisely covering every required "
+                   "section rather than hitting a word target. If you specifically need a word "
+                   "limit, confirm it with your lecturer."),
+        "verified": True,
+    },
+    {
+        "id": "faq-late-submission",
+        "source": "Assignment 1, 2 & 3 briefs (late submission)",
+        "keywords": ["late", "late submission", "submit late", "miss deadline", "missed deadline",
+                     "grace period", "penalty for late", "what happens if i submit late",
+                     "extension", "after deadline"],
+        "question": "What happens if I submit late?",
+        "answer": ("All late submissions face mark deductions. The briefs don't mention a grace "
+                   "period, so aim to submit on time. If you have a genuine reason (for example a "
+                   "medical issue), contact your lecturer as early as possible - the lecturer, not "
+                   "this assistant, decides on any extension."),
+        "verified": True,
+    },
+    {
+        "id": "faq-submission-mechanics",
+        "source": "General module info (MyTIMeS) + lecturer contact",
+        "keywords": ["resubmit", "re-submit", "replace file", "replace submission", "reupload",
+                     "re-upload", "wrong file", "submitted wrong file", "submission successful",
+                     "how do i know submitted", "did my submission go through", "confirm submission",
+                     "change my submission"],
+        "question": "Can I replace my file / how do I know my submission worked?",
+        "answer": ("Assignments are submitted as PDF to MyTIMeS. You can normally replace or "
+                   "re-upload your file before the deadline, and MyTIMeS shows a confirmation once "
+                   "an upload completes. If you submitted the wrong file or aren't sure it went "
+                   "through, upload the correct file again before the deadline. If you still need "
+                   "help, email the lecturer: Sumathi.balakrishnan@taylors.edu.my."),
+        "verified": False,
+    },
+    {
+        "id": "faq-ai-usage",
+        "source": "Taylor's University / module academic-integrity policy (confirm with lecturer)",
+        "keywords": ["ai", "chatgpt", "chat gpt", "generative ai", "gen ai", "use ai",
+                     "ai allowed", "ai assistance", "declare ai", "ai grammar", "ai code",
+                     "ai generated", "ai images", "percentage of ai", "ai percentage", "% of ai",
+                     "how much ai", "copilot", "gemini", "llm"],
+        "question": "Can I use ChatGPT / generative AI, and how much is allowed?",
+        "answer": ("Use of AI (ChatGPT, generative AI, etc.) is governed by Taylor's University "
+                   "and this module's academic-integrity policy - not by this assistant. Do NOT "
+                   "assume a specific 'percentage of AI' is allowed; that has to be confirmed. As a "
+                   "safe rule: the submitted work must be your own, any AI assistance must be "
+                   "declared where the policy requires it, and AI-generated text, code or images "
+                   "can't be passed off as your original work. Check the exact rules with your "
+                   "lecturer (Sumathi.balakrishnan@taylors.edu.my) before relying on AI."),
+        "verified": False,
+    },
+    {
+        "id": "faq-high-mark",
+        "source": "Assignment marking rubrics (Section 3.0 of each brief)",
+        "keywords": ["high mark", "get an a", "how to get a", "score well", "do well",
+                     "top marks", "best grade", "highest marks", "most important criteria",
+                     "important criteria", "how to score", "outstanding", "what gets high marks"],
+        "question": "What do I need to do to get a high mark?",
+        "answer": ("There's no shortcut to a guaranteed grade - aim to reach the 'Outstanding' "
+                   "band of the published rubric on every criterion. Across the assignments the "
+                   "rubric rewards: choosing an IoT opportunity that delivers real value; managing "
+                   "resources and risks and integrating sensors, actuators and communication "
+                   "protocols into a working system; a clear demonstration with justified tool "
+                   "choices; and well-structured documentation/manuscript. Follow the required "
+                   "format, cite properly, keep Turnitin similarity below 20%, and fully address "
+                   "every listed requirement. (This assistant explains the rubric; it can't promise "
+                   "a specific grade.)"),
+        "verified": True,
+    },
+    {
+        "id": "faq-group-contribution",
+        "source": "Common questions (peer review) + lecturer contact",
+        "keywords": ["contribute", "not contributing", "member not contributing",
+                     "equal contribution", "everyone contribute", "peer review", "peer evaluation",
+                     "conflict", "group conflict", "dispute", "same mark", "individual contribution",
+                     "does everyone get the same mark", "lazy member", "free rider"],
+        "question": "What if a group member does not contribute?",
+        "answer": ("Every member is expected to contribute. If someone isn't contributing, fill "
+                   "in the peer-review / peer-evaluation form so it's on record, and raise it with "
+                   "your lecturer (Sumathi.balakrishnan@taylors.edu.my) - the lecturer handles "
+                   "disputes and non-contribution, not this assistant. Marks can be adjusted based "
+                   "on peer evaluation and actual contribution, so document who did what."),
+        "verified": True,
+    },
+    {
+        "id": "faq-change-groups",
+        "source": "Common questions (group changes)",
+        "keywords": ["choose group", "choose own group", "pick group members", "change group",
+                     "change groups", "switch group", "switch groups", "move group",
+                     "new group", "can i change groups", "different group next assignment"],
+        "question": "Can I choose or change my group?",
+        "answer": ("You cannot change groups between assignments - you stay in the same group "
+                   "for the continuous project. For how groups are formed or who is in your group, "
+                   "check with your lecturer. Note that group work applies to Assignments 2 and 3; "
+                   "Assignment 1 is done individually."),
+        "verified": True,
+    },
+    {
+        "id": "faq-continuous",
+        "source": "Common questions (A2 and A3 are continuous)",
+        "keywords": ["continuous", "continuation", "build on", "assignment 2 and 3",
+                     "a2 and a3", "linked", "connected", "same project", "carry over",
+                     "related assignments", "follow on"],
+        "question": "Are Assignments 2 and 3 continuous?",
+        "answer": ("Yes - Assignments 2 and 3 are continuous: they build on the same IoT "
+                   "idea/project. A3.1 even asks you to manage the resources and risks of the IoT "
+                   "idea you proposed in Assignment 2, so keep your project consistent across A2 "
+                   "and A3. (Assignment 1 is where you first propose the idea.)"),
+        "verified": True,
+    },
+    {
+        "id": "faq-who-submits",
+        "source": "Assignment briefs + lecturer (confirm)",
+        "keywords": ["who should submit", "who submits", "who hands in", "all members submit",
+                     "everyone submit", "only group leader", "group leader submit",
+                     "do all group members submit", "one submission"],
+        "question": "Who should submit - everyone or just the group leader?",
+        "answer": ("For the individual Assignment 1, each student submits their own work. For the "
+                   "group Assignments 2 and 3, you submit one set of deliverables per group "
+                   "(typically the group leader submits on the group's behalf). To be safe, confirm "
+                   "with your lecturer whether every member also needs to upload a copy."),
+        "verified": False,
+    },
+    {
+        "id": "faq-lecturer-contact",
+        "source": "Common questions (lecturer email)",
+        "keywords": ["consultation", "contact lecturer", "email", "lecturer email",
+                     "teacher email", "reach lecturer", "sumathi", "appointment", "meet lecturer",
+                     "ask lecturer", "get consultation", "help from lecturer", "who do i ask"],
+        "question": "How can I get a consultation / what is the lecturer's email?",
+        "answer": ("For a consultation, email the lecturer: Sumathi.balakrishnan@taylors.edu.my. "
+                   "Use email to arrange a consultation, or to confirm anything this assistant "
+                   "can't verify from the coursework briefs."),
+        "verified": True,
+    },
+    {
+        "id": "faq-exam",
+        "source": "Not stated in the coursework briefs - confirm with lecturer",
+        "keywords": ["exam", "final exam", "is there an exam", "do we have an exam", "test",
+                     "quiz", "written exam", "sit an exam"],
+        "question": "Do we have an exam for this module?",
+        "answer": ("The coursework briefs I have don't mention an exam - this module is assessed "
+                   "through Assignments 1, 2 and 3. Whether there is any exam should be confirmed "
+                   "with your lecturer (Sumathi.balakrishnan@taylors.edu.my) or on MyTIMeS."),
+        "verified": False,
+    },
+    {
+        "id": "faq-presentation-general",
+        "source": "Assignment 3 brief, A3.3",
+        "keywords": ["how many slides", "number of slides", "slides count", "when is presentation",
+                     "when is our presentation", "presentation when", "q and a", "q&a", "questions after",
+                     "demo fails", "demo does not work", "system does not work", "system doesn't work",
+                     "backup demo", "if demo fails", "does everyone present", "everyone present"],
+        "question": "How long is the presentation, how many slides, and what if the demo fails?",
+        "answer": ("The Assignment 3 presentation (A3.3) runs 20-30 minutes and ALL group members "
+                   "must present, using PowerPoint or Canva; submit your slides to the slides "
+                   "folder. There's no fixed slide count - use enough to cover the suggested "
+                   "outline clearly. Presentations start from 10th July 2026 (confirm your group's "
+                   "exact slot with your lecturer). Because live demos can fail, keep a backup: a "
+                   "recorded video and well-labelled screenshots/photos of your working Tinkercad "
+                   "or Wokwi proof of concept, so you can still show it works."),
+        "verified": True,
+    },
+
     {
         "id": "submission-platform",
         "source": "General module info",
         "keywords": ["mytimes", "where submit", "submission platform", "upload",
-                     "portal", "how to submit"],
-        "question": "Where do I submit my work?",
+                     "portal", "how to submit", "file format", "what format", "pdf submit"],
+        "question": "Where and in what format do I submit my work?",
         "answer": ("Assignments are submitted as softcopy PDF to MyTIMeS. Assignment 3 also "
                    "requires the Turnitin Originality Report (PDF, similarity below 20%) and "
                    "slides submitted to the slides folder."),
         "verified": True,
     },
 
-    # ---- Assignments 1, 2 and 3 are all loaded and verified above. ----
+    # ---- Assignments 1, 2 and 3 (and the student FAQ) are loaded above. ----
     # To add a new fact, copy any block, give it a new "id", and fill in the fields.
 ]
