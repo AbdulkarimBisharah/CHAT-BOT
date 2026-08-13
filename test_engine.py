@@ -104,6 +104,18 @@ _rel = engine.related("a3-deadline")
 check("related returns suggestions", 1 <= len(_rel) <= 3)
 check("related excludes the source question", "When is Assignment 3 due?" not in _rel)
 
+# ---- Tier 3: conversation memory -------------------------------------------
+check("follow-up inherits remembered assignment",
+      engine.answer("and the deadline?", {"assignment": "a2"})["id"] == "a2-deadline")
+check("follow-up 'how much' inherits context",
+      engine.answer("how much is it worth?", {"assignment": "a1"})["id"] == "a1-weightage")
+check("assignment_from prefers the named one",
+      ChatEngine.assignment_from("assignment 1 deadline", "a3-deadline") == "a1")
+check("assignment_from infers from answer id",
+      ChatEngine.assignment_from("and the deadline?", "a2-deadline") == "a2")
+check("empty context leaves A3 default",
+      engine.answer("how much is it worth?", {})["id"] == "a3-weightage")
+
 # ---- Unverified note: only verified=False entries warn ----------------------
 warned = any("double-check" in engine.answer(e["question"]).get("text", "")
              for e in KNOWLEDGE_BASE if e.get("verified"))

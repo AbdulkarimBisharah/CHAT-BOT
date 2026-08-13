@@ -136,13 +136,16 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 if "fb_logged" not in st.session_state:
     st.session_state.fb_logged = set()
+if "context" not in st.session_state:
+    st.session_state.context = {}   # remembers the assignment being discussed
 
 
 def handle(question: str):
     st.session_state.messages.append({"role": "user", "content": question})
-    # answer_all handles compound questions ("when is A2 due and how much is it
-    # worth?") - returning one result per distinct sub-answer.
-    for result in engine.answer_all(question):
+    # answer_all handles compound questions; st.session_state.context carries the
+    # last-discussed assignment so follow-ups ("and the deadline?") resolve.
+    results = engine.answer_all(question, st.session_state.context)
+    for result in results:
         if result.get("type") == "unknown":
             log_unanswered(question)
         st.session_state.messages.append({
@@ -152,6 +155,11 @@ def handle(question: str):
             "id": result.get("id"),
             "question": question,
         })
+    # Update conversational context from the last answer in this turn.
+    if results:
+        asg = engine.assignment_from(question, results[-1].get("id"))
+        if asg:
+            st.session_state.context = {"assignment": asg}
 
 
 # ---- Welcome + suggestion chips (only before first message) ---------------
@@ -174,6 +182,7 @@ else:
     if right.button("🗑️ Start over", key="reset", use_container_width=True):
         st.session_state.messages = []
         st.session_state.fb_logged = set()
+        st.session_state.context = {}
         st.rerun()
 
 # ---- Render chat history --------------------------------------------------

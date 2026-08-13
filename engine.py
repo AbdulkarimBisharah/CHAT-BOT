@@ -213,22 +213,34 @@ class ChatEngine:
         return (same + other)[:n]
 
     @staticmethod
+    def assignment_from(question, result_id):
+        """The assignment a turn is 'about' - named in the question, else inferred
+        from the answered entry's id. Used to keep conversational context."""
+        named = target_assignment(question)
+        if named:
+            return named
+        if result_id:
+            prefix = result_id.split("-")[0]
+            if prefix in ("a1", "a2", "a3"):
+                return prefix
+        return None
+
+    @staticmethod
     def _split_candidates(question):
         """Break a possibly-compound question into parts on '?', ' and ', ';'."""
         parts = re.split(r"\?+|\band\b|;|&", question, flags=re.IGNORECASE)
         return [p.strip() for p in parts if len(tokenise(p)) >= 1]
 
-    def answer_all(self, question):
+    def answer_all(self, question, context=None):
         """Answer a compound question ('when is A2 due and how much is it worth?') as a
         list of results - one per distinct sub-answer. Falls back to a single answer
         when the split doesn't yield two genuinely different, confident answers."""
-        whole = self.answer(question)
+        whole = self.answer(question, context)
         parts = self._split_candidates(question)
         if len(parts) < 2:
             return [whole]
-        # If the whole question names one assignment ("assignment 2 ... and ..."),
-        # carry that context into any sub-part that doesn't name one itself.
-        whole_target = target_assignment(question)
+        # Carry the named (or remembered) assignment into any sub-part lacking one.
+        whole_target = target_assignment(question) or (context or {}).get("assignment")
         results, seen = [], set()
         for part in parts:
             scoped = part
@@ -274,7 +286,7 @@ class ChatEngine:
             "id": entry["id"],
         }
 
-    def answer(self, question: str):
+    def answer(self, question: str, context=None):
         tokens = tokenise(question)
         if not tokens:
             return {
@@ -298,8 +310,16 @@ class ChatEngine:
             return {"type": "smalltalk", "text": text,
                     "source": None, "confidence": 1.0, "id": None}
 
+        # Conversation memory: if this question doesn't name an assignment but the
+        # last one did, follow-ups like "and the deadline?" inherit that assignment.
+        ctx_assignment = (context or {}).get("assignment")
+        effective = question
+        if ctx_assignment and not target_assignment(question):
+            effective = f"{ctx_assignment} {question}"
+        etokens = tokenise(effective)
+
         # 1) Rule layer
-        rule_id = self._check_rules(tokens, question)
+        rule_id = self._check_rules(etokens, effective)
         if rule_id:
             entry = self._find(rule_id)
             if entry:
@@ -307,12 +327,12 @@ class ChatEngine:
 
         # 2) Retrieval layer (with synonym + typo expansion)
         qtf = {}
-        for t in self._expand_query(tokens):
+        for t in self._expand_query(etokens):
             qtf[t] = qtf.get(t, 0) + 1
         qvec = self._vectorise(qtf)
 
-        # Scope to a single named assignment when the student names one.
-        target = target_assignment(question)
+        # Scope to a single named assignment when the student names one (or context does).
+        target = target_assignment(effective)
         candidates = self.docs
         if target:
             scoped = [(e, tf) for e, tf in self.docs if e["id"].startswith(target + "-")]
