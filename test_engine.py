@@ -87,6 +87,23 @@ check("change groups -> cannot", "cannot" in ans("Can I change groups next assig
 check("no exam confirmed", ans("Do we have an exam for this module?")["text"].lower().startswith("no"))
 check("only group leader submits", "leader" in ans("Who should submit the final assignment?")["text"].lower())
 
+# ---- Tier 1: synonyms, typo tolerance, compound questions, related chips ---
+check("typo 'deadlne' still finds deadline", ans("what is the deadlne for a3")["id"] == "a3-deadline")
+check("synonym 'grade' -> high-mark", ans("how do i get a good grade")["id"] == "faq-high-mark")
+check("synonym 'copying' -> plagiarism", ans("who checks my work for copying")["id"] == "a3-plagiarism")
+check("typo 'referance' -> referencing", ans("how do i referance my sources")["id"] == "faq-referencing")
+
+_c = engine.answer_all("how much is assignment 3 worth and when is it due?")
+check("compound returns two answers", len(_c) == 2)
+check("compound keeps A3 context", {r["id"] for r in _c} == {"a3-weightage", "a3-deadline"})
+_c2 = engine.answer_all("when is assignment 2 due and how much is it worth?")
+check("compound propagates named assignment", {r["id"] for r in _c2} == {"a2-deadline", "a2-weightage"})
+check("non-compound stays single", len(engine.answer_all("When is Assignment 3 due?")) == 1)
+
+_rel = engine.related("a3-deadline")
+check("related returns suggestions", 1 <= len(_rel) <= 3)
+check("related excludes the source question", "When is Assignment 3 due?" not in _rel)
+
 # ---- Unverified note: only verified=False entries warn ----------------------
 warned = any("double-check" in engine.answer(e["question"]).get("text", "")
              for e in KNOWLEDGE_BASE if e.get("verified"))

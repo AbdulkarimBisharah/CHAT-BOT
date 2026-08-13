@@ -13,6 +13,7 @@ Pipeline for each student question:
 ============================================================================
 """
 
+import difflib
 import math
 import re
 
@@ -22,6 +23,40 @@ STOPWORDS = set((
     "where which who how why can could should would will shall may might need want "
     "about into if then than"
 ).split())
+
+# Query-side synonym expansion: map the many ways a student phrases something to the
+# canonical word the knowledge base actually uses. Applied ONLY to the retrieval query
+# (never to the rule layer or the index), so it can widen a match but never mis-fire a
+# rule. Each key, if present in the question, ADDS its canonical term to the query.
+SYNONYMS = {
+    # marks / weightage
+    "grade": "marks", "grades": "marks", "mark": "marks", "scoring": "marks",
+    "worth": "weightage", "weighting": "weightage", "weighted": "weightage",
+    # submission
+    "submitting": "submit", "submitted": "submit", "submissions": "submit",
+    "upload": "submit", "uploading": "submit", "uploaded": "submit", "handing": "submit",
+    # deadlines
+    "due": "deadline", "duedate": "deadline", "deadlines": "deadline",
+    "when": "deadline",  # harmless: 'when' is a stopword for tokens but helps intent
+    # referencing
+    "cite": "citation", "citing": "citation", "citations": "references",
+    "reference": "references", "referencing": "references",
+    # AI
+    "chatgpt": "ai", "gpt": "ai", "llm": "ai", "generative": "ai", "copilot": "ai",
+    "gemini": "ai",
+    # groups
+    "team": "group", "teammate": "group", "teammates": "group", "groupmate": "group",
+    "members": "group",
+    # presentation
+    "present": "presentation", "presenting": "presentation", "slides": "presentation",
+    "slide": "presentation", "demo": "presentation",
+    # plagiarism
+    "copying": "plagiarism", "copied": "plagiarism", "plagiarise": "plagiarism",
+    "plagiarizing": "plagiarism", "turnitin": "plagiarism", "similarity": "plagiarism",
+    # misc morphology
+    "pages": "page", "wordcount": "words", "wordlimit": "words", "format": "formatting",
+    "individually": "individual", "requirements": "requirement",
+}
 
 
 def normalise(text: str) -> str:
@@ -128,6 +163,8 @@ class ChatEngine:
                 df[t] = df.get(t, 0) + 1
         n = len(self.docs)
         self.idf = {t: math.log((n + 1) / (c + 1)) + 1 for t, c in df.items()}
+        # Vocabulary of known terms, used to fuzzy-correct typos in a student's question.
+        self.vocab = [t for t in self.idf if not t.isdigit() and len(t) >= 4]
 
     def _vectorise(self, tf):
         return {t: f * self.idf[t] for t, f in tf.items() if t in self.idf}
@@ -146,6 +183,63 @@ class ChatEngine:
             if entry["id"] == entry_id:
                 return entry
         return None
+
+    def _expand_query(self, tokens):
+        """Widen the retrieval query: keep the student's words, then ADD canonical
+        synonyms and fuzzy-corrected spellings of any word not already known. This
+        only affects TF-IDF scoring, never the rule layer."""
+        expanded = list(tokens)
+        for t in tokens:
+            if t in SYNONYMS:
+                expanded.append(SYNONYMS[t])
+            if t not in self.idf and len(t) >= 4:
+                # typo? snap to the closest known vocabulary term.
+                near = difflib.get_close_matches(t, self.vocab, n=1, cutoff=0.82)
+                if near:
+                    expanded.append(near[0])
+        return expanded
+
+    def related(self, entry_id, n=3):
+        """Suggested follow-up questions: siblings from the same assignment first,
+        then a couple of others. Used for 'related question' chips in the UI."""
+        if not entry_id:
+            return []
+        prefix = entry_id.split("-")[0]
+        same, other = [], []
+        for entry, _ in self.docs:
+            if entry["id"] == entry_id or not entry.get("question"):
+                continue
+            (same if entry["id"].startswith(prefix + "-") else other).append(entry["question"])
+        return (same + other)[:n]
+
+    @staticmethod
+    def _split_candidates(question):
+        """Break a possibly-compound question into parts on '?', ' and ', ';'."""
+        parts = re.split(r"\?+|\band\b|;|&", question, flags=re.IGNORECASE)
+        return [p.strip() for p in parts if len(tokenise(p)) >= 1]
+
+    def answer_all(self, question):
+        """Answer a compound question ('when is A2 due and how much is it worth?') as a
+        list of results - one per distinct sub-answer. Falls back to a single answer
+        when the split doesn't yield two genuinely different, confident answers."""
+        whole = self.answer(question)
+        parts = self._split_candidates(question)
+        if len(parts) < 2:
+            return [whole]
+        # If the whole question names one assignment ("assignment 2 ... and ..."),
+        # carry that context into any sub-part that doesn't name one itself.
+        whole_target = target_assignment(question)
+        results, seen = [], set()
+        for part in parts:
+            scoped = part
+            if whole_target and not target_assignment(part):
+                scoped = f"{whole_target} {part}"
+            r = self.answer(scoped)
+            if (r["id"] and r["type"] in ("rule", "retrieval", "retrieval-lowconf")
+                    and r["id"] not in seen):
+                seen.add(r["id"])
+                results.append(r)
+        return results if len(results) >= 2 else [whole]
 
     def _check_rules(self, tokens, raw_text):
         joined = " ".join(tokens)
@@ -211,9 +305,9 @@ class ChatEngine:
             if entry:
                 return self._pack(entry, "rule", 1.0)
 
-        # 2) Retrieval layer
+        # 2) Retrieval layer (with synonym + typo expansion)
         qtf = {}
-        for t in tokens:
+        for t in self._expand_query(tokens):
             qtf[t] = qtf.get(t, 0) + 1
         qvec = self._vectorise(qtf)
 

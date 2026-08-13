@@ -140,16 +140,18 @@ if "fb_logged" not in st.session_state:
 
 def handle(question: str):
     st.session_state.messages.append({"role": "user", "content": question})
-    result = engine.answer(question)
-    if result.get("type") == "unknown":
-        log_unanswered(question)
-    st.session_state.messages.append({
-        "role": "assistant",
-        "content": result["text"],
-        "source": result.get("source"),
-        "id": result.get("id"),
-        "question": question,
-    })
+    # answer_all handles compound questions ("when is A2 due and how much is it
+    # worth?") - returning one result per distinct sub-answer.
+    for result in engine.answer_all(question):
+        if result.get("type") == "unknown":
+            log_unanswered(question)
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": result["text"],
+            "source": result.get("source"),
+            "id": result.get("id"),
+            "question": question,
+        })
 
 
 # ---- Welcome + suggestion chips (only before first message) ---------------
@@ -188,6 +190,20 @@ for idx, msg in enumerate(st.session_state.messages):
                 log_feedback(msg.get("question", ""), msg.get("id"),
                              "up" if rating == 1 else "down")
                 st.session_state.fb_logged.add(idx)
+
+# ---- Related-question chips (based on the latest answer) -------------------
+if st.session_state.messages:
+    last = st.session_state.messages[-1]
+    if last["role"] == "assistant" and last.get("id"):
+        related = engine.related(last["id"], n=3)
+        if related:
+            st.caption("Related questions")
+            rcols = st.columns(len(related))
+            for i, rq in enumerate(related):
+                if rcols[i].button(rq, key=f"rel_{len(st.session_state.messages)}_{i}",
+                                   use_container_width=True):
+                    handle(rq)
+                    st.rerun()
 
 # ---- Input ----------------------------------------------------------------
 prompt = st.chat_input("Ask about the IoT coursework…")
